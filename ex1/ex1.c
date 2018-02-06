@@ -8,7 +8,26 @@
 
 int main(int argc, char *argv[])
 {
-    // Your code here
+    int x, rc;
+    x = 100;
+    printf("hello world (pid: %d) and x is %d\n", (int)getpid(), x);
+
+    rc = fork();
+
+    if (rc < 0)
+    { // fork failed; exit
+        fprintf(stderr, "fork failed\n");
+        exit(1);
+    }
+    else if (rc == 0)
+    { // child process satisfies this branch
+        x = 50;
+        printf("hello, child here (pid: %d) and text file info is %c \n", (int)getpid(), c);
+    }
+    else
+    {
+        printf("hello, parent here (pid: %d) of child %d and file info is %c\n", (int)getpid(), rc, c);
+    }
 
     return 0;
 }
