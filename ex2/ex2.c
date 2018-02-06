@@ -5,41 +5,72 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 
-int main(int argc, char *argv[])
+char *ReadFile(char *filename)
 {
+  char *buffer = NULL;
+  int string_size, read_size;
+  FILE *handler = fopen(filename, "r");
 
-  int c, rc;
-  printf("hello world (pid: %d) and text: %c\n", (int)getpid(), c);
-  FILE *fp;
-  int c;
-
-  fp = fopen("text.txt", "r");
-  while (1)
+  if (handler)
   {
-    c = fgetc(fp);
-    if (feof(fp))
-    {
-      break;
-    }
-    printf("%c", c);
-  }
-  fclose(fp);
+    // Seek the last byte of the file
+    fseek(handler, 0, SEEK_END);
+    // Offset from the first to the last byte, or in other words, filesize
+    string_size = ftell(handler);
+    // go back to the start of the file
+    rewind(handler);
 
+    // Allocate a string that can hold it all
+    buffer = (char *)malloc(sizeof(char) * (string_size + 1));
+
+    // Read it all in one operation
+    read_size = fread(buffer, sizeof(char), string_size, handler);
+
+    // fread doesn't set it so put a \0 in the last position
+    // and buffer is now officially a string
+    buffer[string_size] = '\0';
+
+    if (string_size != read_size)
+    {
+      // Something went wrong, throw away the memory and set
+      // the buffer to NULL
+      free(buffer);
+      buffer = NULL;
+    }
+
+    // Always remember to close the file.
+    fclose(handler);
+  }
+
+  return buffer;
+}
+
+int main()
+{
+  int rc;
+  char *string = ReadFile("text.txt");
   rc = fork();
 
   if (rc < 0)
-  { // fork failed; exit
+  {
     fprintf(stderr, "fork failed\n");
     exit(1);
   }
   else if (rc == 0)
-  { // child process satisfies this branch
-    printf("hello, child here (pid: %d) and text: %c\n", (int)getpid(), c);
+  {
+    printf("hello, child here (pid: %d) and textfile string: %s\n", (int)getpid(), string);
   }
   else
   {
-    printf("hello, parent here (pid: %d) of child %d and text: %c\n", (int)getpid(), rc, c);
+    printf("hello, parent here (pid: %d) of child %d and textfile string: %s\n", (int)getpid(), rc, string);
+  }
+
+  if (string)
+  {
+    puts(string);
+    free(string);
   }
 
   return 0;
