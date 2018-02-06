@@ -22,11 +22,11 @@ int main(int argc, char *argv[])
     else if (rc == 0)
     { // child process satisfies this branch
         x = 50;
-        printf("hello, child here (pid: %d) and text file info is %c \n", (int)getpid(), c);
+        printf("hello, child here (pid: %d) and x is %d \n", (int)getpid(), x);
     }
     else
     {
-        printf("hello, parent here (pid: %d) of child %d and file info is %c\n", (int)getpid(), rc, c);
+        printf("hello, parent here (pid: %d) of child %d and x is %d\n", (int)getpid(), rc, x);
     }
 
     return 0;
